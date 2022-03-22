@@ -21,8 +21,6 @@
 </template>
 
 <script>
-  import { getFirestore, collection, getDocs } from 'firebase/firestore'
-
   export default {
     data() {
       return {
@@ -31,23 +29,8 @@
       }
     },
     async created() {
-      try {
-        const db = getFirestore(this.$firebase)
-        const querySnapshot = await getDocs(collection(db, 'posts'))
-        querySnapshot.forEach(doc => {
-          this.posts.push({
-            id: doc.id,
-            emoji: doc.data().emoji,
-            title: doc.data().title,
-            text: doc.data().text,
-            user: doc.data().user
-          })
-        })
-        this.currentPosts = this.posts.filter(post => post.id == this.$route.params.postId)[0]
-      }
-      catch(e) {
-        console.error('error:', e)
-      }
+      this.posts = await this.$setData()
+      this.currentPosts = this.posts.filter(post => post.id == this.$route.params.id)[0]
     },
   }
 </script>

@@ -36,8 +36,6 @@
 </template>
 
 <script>
-  import { getFirestore, collection, getDocs } from 'firebase/firestore'
-
   export default {
     data() {
       return {
@@ -46,23 +44,8 @@
       }
     },
     async created() {
-      try {
-        const db = getFirestore(this.$firebase)
-        const querySnapshot = await getDocs(collection(db, 'posts'))
-        querySnapshot.forEach(doc => {
-          this.posts.push({
-            id: doc.id,
-            emoji: doc.data().emoji,
-            title: doc.data().title,
-            text: doc.data().text,
-            user: doc.data().user
-          })
-        })
-        this.filteredPosts = this.posts.filter(this.filterByUsername)
-      }
-      catch(e) {
-        console.error('error:', e)
-      }
+      this.posts = await this.$setData()
+      this.filteredPosts = this.posts.filter(this.filterByUsername)
     },
     methods: {
       filterByUsername(item) {

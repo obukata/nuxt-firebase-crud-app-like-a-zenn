@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
+import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc } from 'firebase/firestore'
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -18,6 +18,64 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig)
 
+const setData = async () => {
+  try {
+    const db = getFirestore(firebaseApp)
+    const querySnapshot = await getDocs(collection(db, 'posts'))
+    let posts = []
+    querySnapshot.forEach(doc => {
+      posts.push({
+        id: doc.id,
+        emoji: doc.data().emoji,
+        title: doc.data().title,
+        text: doc.data().text,
+        user: doc.data().user
+      })
+    })
+    return posts
+  }
+  catch(e) {
+    console.error('error:', e)
+  }
+}
+
+const addData = async (obj) => {
+  try {
+    const db = getFirestore(firebaseApp)
+    const docRef = await addDoc(collection(db, 'posts'), {
+      user: obj.user,
+      emoji: obj.emoji,
+      title: obj.title,
+      text: obj.text,
+    })
+  } catch(e) {
+    console.error('error:', e)
+  }
+}
+
+const updateData = async (obj) => {
+  try {
+    const db = getFirestore(firebaseApp)
+    const docRef = doc(db, 'posts', obj.id)
+    await updateDoc(docRef, {
+      emoji: obj.emoji,
+      title: obj.title,
+      text: obj.text
+    })
+  } catch(e) {
+    console.error('error:', e)
+  }
+}
+
+const deleteData = async (id) => {
+  const db = getFirestore(firebaseApp)
+  const docRef = doc(db, 'posts', id)
+  await deleteDoc(docRef)
+}
+
 export default (context, inject) => {
-  inject('firebase', firebaseApp)
+  inject('setData', setData)
+  inject('addData', addData)
+  inject('updateData', updateData)
+  inject('deleteData', deleteData)
 }

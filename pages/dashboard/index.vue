@@ -25,8 +25,6 @@
 </template>
 
 <script>
-  import { getFirestore, collection, getDocs } from 'firebase/firestore'
-
   export default {
     layout: 'simple',
     data() {
@@ -37,41 +35,24 @@
       }
     },
     async created() {
-      try {
-        const db = getFirestore(this.$firebase)
-        const querySnapshot = await getDocs(collection(db, 'posts'))
-        querySnapshot.forEach(doc => {
-          this.posts.push({
-            id: doc.id,
-            emoji: doc.data().emoji,
-            title: doc.data().title,
-            text: doc.data().text,
-            user: doc.data().user
-          })
-        })
-        this.filteredPosts = this.posts.filter(this.filterByUsername)
-      }
-      catch(e) {
-        console.error('error:', e)
-      }
+      this.posts = await this.$setData()
+      this.filteredPosts = this.posts.filter(this.filterByUsername)
     },
     methods: {
       filterByUsername(item) {
         if(item.user === this.user) {
           return true
         }
+      },
+      modal(id) {
+        if(window.confirm('本当に削除してもよろしいですか？')) {
+          this.deleteData(id)
+        }
+      },
+      deleteData(id) {
+        this.filteredPosts.splice(this.filteredPosts.findIndex(element => element.id === id), 1)
+        this.$deleteData(id)
       }
     }
-    // methods: {
-    //   remove(id) {
-    //     this.$removePost(this.posts.findIndex(element => element.id === id), this.posts)
-    //     this.filteredPosts.splice(this.filteredPosts.findIndex(element => element.id === id), 1)
-    //   },
-    //   modal(id) {
-    //     if(window.confirm('本当に削除してもよろしいですか？')) {
-    //       this.remove(id)
-    //     }
-    //   }
-    // }
   }
 </script>
