@@ -11,7 +11,10 @@
       </div>
     </div>
     <div class="mt-12">
-      <textarea v-model="currentPosts.text" class="p-12 focus:ring-0 border-0 w-full h-full resize-none rounded-lg bg-white" placeholder="内容を入力してください"></textarea>
+      <textarea v-model="currentPosts.text" class="p-12 focus:ring-0 border-0 w-full h-96 resize-none rounded-lg bg-white" placeholder="内容を入力してください"></textarea>
+      <div class="p-12 focus:ring-0 border-0 w-full h-full resize-none rounded-lg bg-white">
+        <div v-html="$md.render(currentPosts.text)" class="prose"></div>
+      </div>
     </div>
     <div class="mt-12 text-center">
       <button @click="updateData" class="bg-blue-400 hover:bg-blue-500 px-5 py-3 shadow text-sm font-semibold rounded-md text-white">更新する</button>
@@ -20,6 +23,7 @@
 </template>
 
 <script>
+  import { getFirestore, doc, updateDoc, Timestamp } from 'firebase/firestore'
   import data from "emoji-mart-vue-fast/data/apple.json"
   import "emoji-mart-vue-fast/css/emoji-mart.css"
   import { Picker, EmojiIndex } from 'emoji-mart-vue-fast'
@@ -27,7 +31,7 @@
 
   export default {
     name: 'App',
-    layout: 'simple',
+    // layout: 'simple',
     components: {
       Picker
     },
@@ -35,7 +39,7 @@
       return {
         emojiIndex: emojiIndex,
         emojiPicker: false,
-        user: 'obukata',
+        user: [],
         posts: [],
         currentPosts: {
           emoji: '😀',
@@ -47,16 +51,28 @@
       }
     },
     async created() {
-      this.posts = await this.$setData()
+      this.posts = await this.$setPostsData()
       this.currentPosts = this.posts.filter(post => post.id == this.$route.params.id)[0]
+      this.user = await this.$setUserData()
     },
     methods: {
       showEmoji(emoji) {
         this.currentPosts.emoji = emoji.native
       },
-      updateData() {
-        this.$updateData(this.currentPosts)
-        this.$router.push(`/${this.currentPosts.user}/articles/${this.currentPosts.id}`)
+      async updateData() {
+        try {
+          const db = getFirestore(this.$firebase)
+          const docRef = doc(db, 'posts', this.currentPosts.id)
+          await updateDoc(docRef, {
+            emoji: this.currentPosts.emoji,
+            title: this.currentPosts.title,
+            text: this.currentPosts.text,
+            createdDay: Timestamp.now()
+          })
+        } catch(e) {
+          console.error('error:', e)
+        }
+        this.$router.push(`/${this.$idToName(this.currentPosts.user, this.user)}/articles/${this.currentPosts.id}`)
       }
     },
   }

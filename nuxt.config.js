@@ -3,7 +3,7 @@ export default {
   target: 'static',
 
   router: {
-    middleware: 'loginCheck'
+    middleware: 'authenticated'
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
@@ -33,6 +33,7 @@ export default {
     '@/plugins/dayjs',
     '@/plugins/localStorage',
     '@/plugins/firebase',
+    '@/plugins/utils',
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -48,7 +49,12 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     '@nuxtjs/axios',
+    '@nuxtjs/markdownit',
   ],
+
+  markdownit: {
+    runtime: true
+  },
 
   /*
   ** Axios module configuration

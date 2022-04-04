@@ -18,7 +18,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig)
 
-const setData = async () => {
+const setPostsData = async () => {
   try {
     const db = getFirestore(firebaseApp)
     const querySnapshot = await getDocs(collection(db, 'posts'))
@@ -29,7 +29,8 @@ const setData = async () => {
         emoji: doc.data().emoji,
         title: doc.data().title,
         text: doc.data().text,
-        user: doc.data().user
+        user: doc.data().user,
+        createdDay: doc.data().createdDay,
       })
     })
     return posts
@@ -39,19 +40,58 @@ const setData = async () => {
   }
 }
 
-const addData = async (obj) => {
+const setUserData = async () => {
   try {
     const db = getFirestore(firebaseApp)
-    const docRef = await addDoc(collection(db, 'posts'), {
-      user: obj.user,
-      emoji: obj.emoji,
-      title: obj.title,
-      text: obj.text,
+    const querySnapshot = await getDocs(collection(db, 'user'))
+    let user = []
+    querySnapshot.forEach(doc => {
+      user.push({
+        id: doc.id,
+        name: doc.data().name,
+      })
     })
-  } catch(e) {
+    return user
+  }
+  catch(e) {
     console.error('error:', e)
   }
 }
+
+// const setData = async () => {
+//   try {
+//     const db = getFirestore(firebaseApp)
+//     const querySnapshot = await getDocs(collection(db, 'posts'))
+//     let posts = []
+//     querySnapshot.forEach(doc => {
+//       posts.push({
+//         id: doc.id,
+//         emoji: doc.data().emoji,
+//         title: doc.data().title,
+//         text: doc.data().text,
+//         user: doc.data().user
+//       })
+//     })
+//     return posts
+//   }
+//   catch(e) {
+//     console.error('error:', e)
+//   }
+// }
+
+// const addData = async (obj) => {
+//   try {
+//     const db = getFirestore(firebaseApp)
+//     const docRef = await addDoc(collection(db, 'posts'), {
+//       user: obj.user,
+//       emoji: obj.emoji,
+//       title: obj.title,
+//       text: obj.text,
+//     })
+//   } catch(e) {
+//     console.error('error:', e)
+//   }
+// }
 
 const updateData = async (obj) => {
   try {
@@ -74,8 +114,10 @@ const deleteData = async (id) => {
 }
 
 export default (context, inject) => {
-  inject('setData', setData)
-  inject('addData', addData)
+  inject('firebase', firebaseApp)
+  inject('setPostsData', setPostsData)
+  inject('setUserData', setUserData)
+  // inject('addData', addData)
   inject('updateData', updateData)
   inject('deleteData', deleteData)
 }

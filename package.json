@@ -9,6 +9,7 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@nuxtjs/markdownit": "^2.0.0",
     "core-js": "^3.19.3",
     "dayjs": "^1.10.8",
     "emoji-mart-vue-fast": "^10.2.1",

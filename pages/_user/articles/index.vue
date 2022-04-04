@@ -18,14 +18,14 @@
       <h2 class="text-2xl font-semibold border-b mb-4 pb-4">Articles</h2>
       <ul class="grid gap-8 grid-cols-3">
         <li v-for="filteredPost in filteredPosts" :key="filteredPost.id" class="rounded-md shadow-md bg-white overflow-hidden hover:shadow-lg">
-          <NuxtLink :to="`/${filteredPost.user}/articles/${filteredPost.id}`">
+          <NuxtLink :to="`/${$route.params.user}/articles/${filteredPost.id}`">
             <div class="bg-blue-100 text-5xl text-center p-6">{{ filteredPost.emoji }}</div>
             <h3 class="font-semibold px-4 pt-4">{{ filteredPost.title }}</h3>
           </NuxtLink>
-          <NuxtLink :to="`/${filteredPost.user}/articles`" class="flex items-center w-full p-4 hover:underline">
+          <NuxtLink :to="`/${$route.params.user}/articles`" class="flex items-center w-full p-4 hover:underline">
             <div class="rounded-full overflow-hidden w-8 h-8 bg-slate-500"></div>
             <div class="ml-2 text-xs">
-              <div class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ filteredPost.user }}</div>
+              <div class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ $route.params.user }}</div>
               <div class="text-slate-500">2日前</div>
             </div>
           </NuxtLink>
@@ -40,19 +40,14 @@
     data() {
       return {
         filteredPosts: [],
-        posts: []
+        posts: [],
+        user: [],
       }
     },
     async created() {
-      this.posts = await this.$setData()
-      this.filteredPosts = this.posts.filter(this.filterByUsername)
+      this.posts = await this.$setPostsData()
+      this.user = await this.$setUserData()
+      this.filteredPosts = this.posts.filter(item => item.user == this.$nameToId(this.$route.params.user, this.user))
     },
-    methods: {
-      filterByUsername(item) {
-        if(item.user === this.$route.params.user) {
-          return true
-        }
-      }
-    }
   }
 </script>
